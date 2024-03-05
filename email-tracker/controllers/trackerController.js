@@ -1,13 +1,21 @@
 // controllers/trackerController.js
-const EmailOpen = require('../models/emailOpen');
+const fetch = require('node-fetch');
 
 exports.trackEmailOpen = async (req, res) => {
   try {
-    // Extract email address from request
     const { email } = req.query;
-    
-    // Save email open event to MongoDB
-    await EmailOpen.create({ email, timestamp: new Date() });
+
+    // Save email open event to JSONBin
+    const response = await fetch('https://api.jsonbin.io/b', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': process.env.master_key
+      },
+      body: JSON.stringify({ email, timestamp: new Date() })
+    });
+
+    const data = await response.json();
 
     // Serve a transparent pixel image
     res.sendFile('pixel.png', { root: __dirname });
